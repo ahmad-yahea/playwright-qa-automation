@@ -1,0 +1,95 @@
+# Regression gate for the QA environment under test.
+#   pull request / push to main -> smoke (about 1 minute)
+#   every night                 -> full suite
+#   manual run                  -> choose smoke or full
+name: QA
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 3 * * *'   # 03:00 UTC nightly
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Which tests to run'
+        type: choice
+        options: [smoke, full]
+        default: smoke
+
+concurrency:
+  group: qa-${{ github.ref }}
+  cancel-in-progress: false   # never run two suites at once against QA (rate limits)
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Target environment (repo variables). Without them the job only prints a notice.
+      BASE_URL: ${{ vars.BASE_URL }}
+      API_URL: ${{ vars.API_URL }}
+      # Mailbox for the verification email (secrets). Without them signup steps are skipped.
+      MAIL_HOST: ${{ secrets.MAIL_HOST }}
+      MAIL_PORT: ${{ secrets.MAIL_PORT }}
+      MAIL_USER: ${{ secrets.MAIL_USER }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      MAIL_ADDRESS_BASE: ${{ secrets.MAIL_ADDRESS_BASE }}
+      # Optional pre-verified customer, used when no mailbox is set
+      TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
+      TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+      # Delivery-zone fixtures of the target environment (repo variables, see .env.example)
+      ZONE_IN_ID: ${{ vars.ZONE_IN_ID }}
+      ZONE_IN_NAME: ${{ vars.ZONE_IN_NAME }}
+      ZONE_IN_LAT: ${{ vars.ZONE_IN_LAT }}
+      ZONE_IN_LNG: ${{ vars.ZONE_IN_LNG }}
+      ZONE_OUT_LAT: ${{ vars.ZONE_OUT_LAT }}
+      ZONE_OUT_LNG: ${{ vars.ZONE_OUT_LNG }}
+      VERIFY_EMAIL_SUBJECT: ${{ vars.VERIFY_EMAIL_SUBJECT }}
+      # nightly and "full" run everything; everything else runs the smoke subset
+      SUITE: ${{ (github.event_name == 'schedule' || inputs.suite == 'full') && 'full' || 'smoke' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check target environment
+        id: target
+        run: |
+          if [ -n "$BASE_URL" ] && [ -n "$API_URL" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::BASE_URL / API_URL repo variables not set - nothing to test, skipping the run"
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.target.outputs.available == 'true'
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        if: steps.target.outputs.available == 'true'
+      - run: npx playwright install --with-deps chromium
+        if: steps.target.outputs.available == 'true'
+      - name: Run tests
+        if: steps.target.outputs.available == 'true'
+        run: |
+          if [ "$SUITE" = "full" ]; then npm test; else npm run test:smoke; fi
+      - name: Upload report
+        if: always() && steps.target.outputs.available == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+            results.json
+          retention-days: 14
+      - name: Job summary
+        if: always() && steps.target.outputs.available == 'true'
+        run: |
+          echo "## QA run (${SUITE})" >> "$GITHUB_STEP_SUMMARY"
+          node -e "const s=require('./results.json').stats;console.log('| passed | failed | flaky | skipped |\n|---|---|---|---|\n| '+[s.expected,s.unexpected,s.flaky,s.skipped].join(' | ')+' |')" >> "$GITHUB_STEP_SUMMARY" || true
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Report: download the **playwright-report** artifact and open index.html." >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "$MAIL_HOST" ] && [ -z "$TEST_EMAIL" ]; then
+            echo "> No MAIL_* or TEST_EMAIL secrets set: tests that need a logged-in customer were skipped." >> "$GITHUB_STEP_SUMMARY"
+          fi

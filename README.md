@@ -43,6 +43,22 @@ Why it is simple: one browser (Chromium), one config, plain TypeScript, no page-
 
 `docs/test-cases.md` lists every test by feature with its type and status.
 
+## Documentation
+
+Full documentation is in [`docs/`](docs/README.md):
+
+| Topic | File |
+|---|---|
+| How the suite is built and why | [architecture](docs/architecture.md) |
+| Every environment variable and config setting | [configuration](docs/configuration.md) |
+| Every test file: purpose, needs, side effects | [test suites](docs/test-suites.md) and [test cases](docs/test-cases.md) |
+| Every helper function | [helpers reference](docs/helpers-reference.md) |
+| Writing a new test, with templates | [writing tests](docs/writing-tests.md) |
+| Open defects and `knownBug()` | [known bugs](docs/known-bugs.md) |
+| The pipeline, its secrets and reports | [CI/CD](docs/ci-cd.md) |
+| Fixing failing or skipped runs | [troubleshooting](docs/troubleshooting.md) |
+| Secrets, test data and safety | [security and data](docs/security-and-data.md) |
+
 ## Requirements
 
 - Node.js 22 and npm

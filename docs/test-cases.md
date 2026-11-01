@@ -35,7 +35,7 @@ Status: **runs** = always; **needs account** = needs MAIL_* or TEST_EMAIL; **nee
 | Refuses changing role / email via profile | API | needs account |
 | Lists saved addresses with coordinates | API | needs account |
 | Rejects a bad postal code | API | needs account |
-| Rejects address label with < or > | API | known bug BUG-6 |
+| Rejects address label with < or > | API | runs (BUG-6 fixed, `knownBug()` removed) |
 | Rejects a phone used by another account | API | skipped (needs a second account, BUG-8) |
 | Common-password policy on set-password | - | not automated (would create accounts), BUG-8 |
 
@@ -47,8 +47,8 @@ Status: **runs** = always; **needs account** = needs MAIL_* or TEST_EMAIL; **nee
 | Every product has an image | API | known bug BUG-3 |
 | In-zone serviceable, out-of-zone not | API | runs, @smoke |
 | Off-zone point refused even if city matches | API | runs |
-| City name alone is not accepted | API | known bug BUG-2 |
-| Typed-address check (`?address=`) accepted | API | known bug BUG-5 |
+| City name alone is not accepted | API | runs (BUG-2 fixed, `knownBug()` removed) |
+| Typed-address check (`?address=`) accepted | API | runs (BUG-5 fixed, `knownBug()` removed) |
 
 ## Cart
 | Behaviour | Type | Status |
@@ -73,7 +73,7 @@ Status: **runs** = always; **needs account** = needs MAIL_* or TEST_EMAIL; **nee
 | Behaviour | Type | Status |
 |---|---|---|
 | Unknown order 404, non-uuid 400 | API | needs account, @smoke |
-| Cancel unknown order = 404 | API | known bug BUG-7 |
+| Cancel unknown order = 404 | API | runs (BUG-7 fixed, `knownBug()` removed) |
 | Order lookup shows a status | API | needs checkout |
 | Cancel once ok, second cancel refused | API | needs checkout |
 
@@ -83,9 +83,9 @@ Status: **runs** = always; **needs account** = needs MAIL_* or TEST_EMAIL; **nee
 | No public guest-checkout endpoint (404) | API | runs, @smoke |
 | Protected call without login = 401 | API | runs, @smoke |
 | Logout ends the session | API | needs account |
-| Logout / cart add / cart clear need the CSRF token | API | known bug BUG-10 (3 tests) |
+| Logout / cart add / cart clear need the CSRF token | API | runs (BUG-10 fixed, `knownBug()` removed; 3 tests) |
 | Logged-out visitor asked to log in on /browse/orders | UI | runs |
-| Customer cannot see the Operations Dashboard at /admin | UI | known bug BUG-9 |
+| Customer cannot see the Operations Dashboard at /admin | UI | runs (BUG-9 fixed, `knownBug()` removed) |
 
 ## Browse and search
 | Behaviour | Type | Status |

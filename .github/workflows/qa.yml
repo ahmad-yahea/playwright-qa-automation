@@ -23,6 +23,21 @@ concurrency:
   cancel-in-progress: false   # never run two suites at once against QA (rate limits)
 
 jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: No env file or key-like strings are committed
+        run: |
+          if git ls-files | grep -E '(^|/)\.env($|\.[a-z]+$)' | grep -v '\.env\.example$'; then
+            echo "::error::a .env file is tracked"; exit 1
+          fi
+          pattern='(sk|pk|rk)_(live|test)_[A-Za-z0-9]{10,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY|ghp_[A-Za-z0-9]{30,}|eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}\.'
+          if git ls-files -z | grep -zv -e '^package-lock.json$' -e '^\.github/' | xargs -0 grep -nIE "$pattern"; then
+            echo "::error::key-like string committed"; exit 1
+          fi
+          echo "clean"
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 30

@@ -93,5 +93,21 @@ Status: **runs** = always; **needs account** = needs MAIL_* or TEST_EMAIL; **nee
 | Search box and results stay in sync | UI | needs account |
 | Header shows the saved address zone (inside / outside the zone) | UI | needs account |
 
+## Login and signup forms, responsive, health (`tests/ui`)
+| Behaviour | Type | Status |
+|---|---|---|
+| Password is masked and the show/hide button toggles it | UI | runs (API mocked) |
+| Enter key submits the login form once | UI | runs (API mocked) |
+| Double click on Log in sends one request | UI | runs (API mocked) |
+| Network failure on login shows an error, not a hang | UI | runs (API mocked) |
+| Malformed email rejected without sending a signup | UI | runs (API mocked) |
+| Double click on Continue sends one signup | UI | runs (API mocked) |
+| Name with accents is accepted and sent unchanged | UI | runs (API mocked) |
+| Script tag in the name never runs | UI | runs (API mocked) |
+| Denied location permission does not leave the page hanging | UI | runs |
+| Public pages fit every width (360 to 2560 px) | UI | runs |
+| Storefront pages fit every width | UI | needs account |
+| Home page has no script errors / no missing files | UI | runs, **@smoke** |
+
 ## Ideas to add next
-Promo codes, mobile widths (add a project in `playwright.config.ts`), order tracking status changes, password reset flow, rider/admin areas.
+Promo codes, mobile device projects (add them in `playwright.config.ts`), order tracking status changes, password reset flow, rider/admin areas.

@@ -11,6 +11,8 @@ It doubles as the **CI gate**: a smoke run on every pull request and push, the f
 - A fresh customer per run: real signup, verification link read from an IMAP mailbox, no shared test accounts
 - `knownBug()` helper: open defects stay as green "expected failures" and turn the run red the day they are fixed
 - Rate-limit aware helpers (throttled checkout, login done once and reused), CSRF-aware write helper
+- Form-behaviour checks with the API **mocked in the browser** (double click, network failure, hostile input), so they create no data and send no real login attempts
+- Responsive overflow check across 8 widths and a page-health check (no script errors, no missing files)
 - Configuration entirely from `.env` / CI variables, secrets only in GitHub Secrets
 - GitHub Actions: smoke on PRs, full nightly, manual run, HTML report + job summary
 
@@ -34,8 +36,19 @@ Why it is simple: one browser (Chromium), one config, plain TypeScript, no page-
 | Orders | `tests/api/orders` | Lookup, unknown ids, cancel once / not twice, refund |
 | Session and security | `tests/api/session-security`, `tests/ui/access-control` | CSRF, logout, removed endpoints, admin area closed to customers |
 | Browse and search | `tests/ui/browse-search` | Search box and results in sync, delivery zone in the header |
+| Login form behaviour | `tests/ui/login-behaviour` | Password masking and toggle, enter key, double click sends one request, network failure shows an error (API mocked) |
+| Signup form validation | `tests/ui/signup-validation` | Malformed email, double click, names with accents, script tag in a name never runs, denied location (API mocked) |
+| Responsive | `tests/ui/responsive` | No sideways scrolling at 360 to 2560 px on public pages and (logged in) storefront pages |
+| Page health | `tests/ui/health` | Home page has no script errors and no missing files (`@smoke`) |
 
 `docs/test-cases.md` lists every test by feature with its type and status.
+
+## Requirements
+
+- Node.js 22 and npm
+- A target web shop (URL and API URL) you are allowed to test, ideally a non-production environment
+- Optional: an IMAP mailbox so each run can create a fresh customer (see "Accounts and mailbox")
+- Optional: Chromium is installed by `npx playwright install chromium`
 
 ## Quick start
 
@@ -153,3 +166,30 @@ order skip with that reason; once it works they run by themselves (the payment m
 - **Verification email did not arrive:** check `MAIL_*`, that IMAP is enabled, and the spam folder; the email subject must match `VERIFY_EMAIL_SUBJECT`.
 - **"Expected to fail, but passed":** a known bug was fixed; remove its `knownBug()` line.
 - **Everything skipped:** no `MAIL_*` and no `TEST_EMAIL`/`TEST_PASSWORD` set.
+
+## Project layout
+
+```
+.
+├── .env.example            every setting, empty or sample values (copy to .env)
+├── .github/workflows/qa.yml  CI: hygiene check, smoke on PRs, nightly full run, manual run
+├── docs/test-cases.md      every test by feature with type and status
+├── playwright.config.ts    one Chromium project, one worker, CI retry and reporters
+└── tests/
+    ├── api/                backend checks (auth, account, catalog, zones, cart, checkout, payments, orders, security)
+    ├── ui/                 browser checks (auth, access control, browse, checkout, login and signup forms, responsive, health)
+    ├── journey/            the serial end-to-end customer story
+    └── helpers/            env, API client (sessions, CSRF, throttled checkout), browser login, mailbox, knownBug
+```
+
+## Secrets and safety
+
+- **No credentials are stored in this repository.** Real values live in `.env` (git-ignored) locally and in GitHub Secrets / Variables in CI. `.env.example` contains placeholders only.
+- A **hygiene job** in CI fails the build if a `.env` file is tracked or a key-like string (Stripe, AWS, GitHub tokens, private keys, JWTs) is committed.
+- Point the suite only at environments you own or have permission to test. Payment tests use Stripe **test** payment methods only; never use real card numbers.
+- The form-behaviour tests mock the login and signup requests in the browser, so they never send real credentials or create accounts.
+- If you ever commit a secret by mistake, rotate it immediately; removing the commit is not enough.
+
+## License
+
+MIT, see [LICENSE](LICENSE).

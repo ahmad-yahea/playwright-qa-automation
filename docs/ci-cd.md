@@ -44,6 +44,7 @@ Repository → Settings → Secrets and variables → Actions.
 | `TEST_EMAIL`, `TEST_PASSWORD` | secret | Fallback customer (also the only customer if no mailbox) |
 | `ZONE_IN_ID`, `ZONE_IN_NAME`, `ZONE_IN_LAT`, `ZONE_IN_LNG`, `ZONE_OUT_LAT`, `ZONE_OUT_LNG` | variable | Zone fixtures of your environment |
 | `VERIFY_EMAIL_SUBJECT` | variable | Subject of your verification email |
+| `TEST_EMAIL_DOMAIN`, `DISPOSABLE_EMAIL` | variable | Domain for throwaway test addresses (defaults to the mailbox domain) and a disposable address the app must refuse |
 
 Without the mailbox and fallback secrets the pipeline still runs, but anything that needs a customer is skipped and the
 job summary says so.

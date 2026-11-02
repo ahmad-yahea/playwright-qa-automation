@@ -54,6 +54,9 @@ jobs:
       # Optional pre-verified customer, used when no mailbox is set
       TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
       TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+      # Domain for throwaway test addresses, and a disposable address the app must refuse (repo variables)
+      TEST_EMAIL_DOMAIN: ${{ vars.TEST_EMAIL_DOMAIN }}
+      DISPOSABLE_EMAIL: ${{ vars.DISPOSABLE_EMAIL }}
       # Delivery-zone fixtures of the target environment (repo variables, see .env.example)
       ZONE_IN_ID: ${{ vars.ZONE_IN_ID }}
       ZONE_IN_NAME: ${{ vars.ZONE_IN_NAME }}

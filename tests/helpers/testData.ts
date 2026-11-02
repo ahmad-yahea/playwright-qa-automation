@@ -1,10 +1,13 @@
-import { mail } from './env';
+import { TEST_EMAIL_DOMAIN, mail } from './env';
 
 /** Fresh email for a new account: the mailbox address with a unique "+alias", e.g. qa+pw1730000000-ab12@example.com. */
 export function freshEmail(): string {
   const [local, domain] = mail.addressBase.split('@');
   return `${local}+pw${Date.now()}-${Math.random().toString(36).slice(2, 6)}@${domain}`;
 }
+
+/** A throwaway address that was never registered, e.g. qa.lockout.1730000000000@<your test domain>. Nothing is ever sent to it. */
+export const testEmail = (label: string) => `qa.${label}.${Date.now()}@${TEST_EMAIL_DOMAIN}`;
 
 /** Password that satisfies the policy (upper, lower, digit, symbol, 8+ chars) and is not a common one. */
 export const freshPassword = () => `Pw!${Math.random().toString(36).slice(2, 10)}Zq9`;

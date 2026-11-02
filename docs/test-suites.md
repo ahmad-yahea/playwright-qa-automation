@@ -23,7 +23,7 @@ cancel and see it refunded → log out (private pages ask for login again).
 
 | File | Protects | Needs | Creates / side effects |
 |---|---|---|---|
-| `auth.spec.ts` (smoke) | Login answers safely: 401 with a generic message, same message for unknown email (no account enumeration), account lock after repeated failures; signup validation (empty body, invalid email, empty name, disposable domain, out-of-zone location) | nothing | Nothing. The lockout test uses a throwaway email, never a real account |
+| `auth.spec.ts` (smoke) | (addresses come from `testEmail()`, nothing hard-coded; two signup cases skip until a test email domain is configured) Login answers safely: 401 with a generic message, same message for unknown email (no account enumeration), account lock after repeated failures; signup validation (empty body, invalid email, empty name, disposable domain, out-of-zone location) | nothing | Nothing. The lockout test uses a throwaway email, never a real account |
 | `account.spec.ts` | Profile and addresses: phone must be E.164, forbidden fields cannot be changed, a bad postal code is rejected, unsafe address labels (`<`, `>`) are rejected | customer | Nothing permanent. If a call that should be rejected is wrongly accepted, the test deletes what it created |
 | `catalog.spec.ts` (smoke) | Public data the shop front reads: categories, real moods (no test data), only published products, price above zero and a stock number, at least one image per product | nothing | Nothing |
 | `zones.spec.ts` (smoke) | Delivery zone decisions: inside is serviceable, outside is not, a matching city name is not enough, no match by city alone, the typed-address check used by signup | nothing | Nothing |

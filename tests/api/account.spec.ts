@@ -6,6 +6,7 @@
 import { test, expect } from '@playwright/test';
 import { SAMPLE_ADDRESS } from '../helpers/env';
 import { Session, errorText, sessionOrSkip, writeHeaders } from '../helpers/apiClient';
+import { testEmail } from '../helpers/testData';
 
 let s: Session;
 test.beforeAll(async () => { s = await sessionOrSkip(); });
@@ -22,7 +23,7 @@ test.describe('profile', () => {
   }
   for (const field of ['role', 'email']) {
     test(`refuses to change "${field}" here (extra field is rejected)`, async () => {
-      const res = await patchMe({ [field]: field === 'role' ? 'admin' : 'someone@gmail.com' });
+      const res = await patchMe({ [field]: field === 'role' ? 'admin' : testEmail('someone') });
       expect(res.status()).toBe(400);
       expect(await errorText(res)).toMatch(/should not exist/);
     });

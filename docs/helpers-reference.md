@@ -12,6 +12,9 @@ Reads the environment once. Nothing here has side effects.
 | `mail` | `{ host, port, user, password, addressBase }` | Mailbox settings (`addressBase` defaults to `user`) |
 | `mailConfigured` | boolean | True when the mailbox is complete |
 | `VERIFY_EMAIL_SUBJECT` | string | Subject to look for in the verification email |
+| `TEST_EMAIL_DOMAIN` | string | Domain for invented throwaway addresses (env, else mailbox domain, else `example.com`) |
+| `emailDomainConfigured` | boolean | True when the domain came from `TEST_EMAIL_DOMAIN` or the mailbox, i.e. the application should accept it |
+| `DISPOSABLE_EMAIL` | string | An address on a domain the application refuses as disposable |
 | `TEST_EMAIL`, `TEST_PASSWORD` | string | Fallback customer |
 | `ZONE_IN_ID`, `ZONE_IN_NAME` | string | The delivery-zone fixture |
 | `IN_ZONE` | `{ lat, lng }` | A point inside the zone (also the default faked browser location) |
@@ -94,6 +97,7 @@ Works with any IMAP provider (library: `imapflow`). Quoted-printable line breaks
 | Function | Returns | Meaning |
 |---|---|---|
 | `freshEmail()` | string | Unique `+alias` of the mailbox address, e.g. `qa+pw1730000000-ab12@example.com` |
+| `testEmail(label)` | string | A throwaway address `qa.<label>.<timestamp>@<TEST_EMAIL_DOMAIN>` that is never delivered to. Use it instead of typing an address |
 | `freshPassword()` | string | A password meeting the policy (upper, lower, digit, symbol, 8+) that is not a common one |
 | `freshPhone()` | string | A made-up Irish mobile number in E.164 |
 | `pickProduct(products, minStock = 5)` | product | An in-stock product from the public list, so tests never hard-code product ids |

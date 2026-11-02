@@ -4,12 +4,13 @@
  * real login attempts.
  */
 import { test, expect, type Page } from '@playwright/test';
+import { testEmail } from '../helpers/testData';
 
 const unauthorised = { status: 401, contentType: 'application/json', body: '{"statusCode":401,"message":"Invalid email or password"}' };
 
 async function fill(page: Page) {
   await page.goto('/login');
-  await page.getByLabel('Email').fill('qa.nobody@example.com');
+  await page.getByLabel('Email').fill(testEmail('nobody'));
   await page.locator('input[type=password]').fill('Not-a-real-password1');
 }
 const loginButton = (page: Page) => page.getByRole('button', { name: /^log in$/i }).last();

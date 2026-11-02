@@ -5,6 +5,7 @@
  */
 import { test, expect } from '@playwright/test';
 import { IN_ZONE, TEST_EMAIL } from '../helpers/env';
+import { testEmail } from '../helpers/testData';
 
 test.describe('login', () => {
   test('shows the email and password fields', async ({ page }) => {
@@ -15,7 +16,7 @@ test.describe('login', () => {
 
   test('shows an error for a wrong password and stays on /login', async ({ page }) => {
     await page.goto('/login');
-    await page.getByLabel('Email').fill(TEST_EMAIL || 'qa.someone@gmail.com');
+    await page.getByLabel('Email').fill(TEST_EMAIL || testEmail('someone'));
     await page.locator('input[type=password]').fill('Wrong1234x-not-the-password');
     await page.getByRole('button', { name: /log in|sign in/i }).click();
     await expect(page.getByText(/invalid email or password/i)).toBeVisible();

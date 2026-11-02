@@ -19,6 +19,17 @@ export const mail = {
 export const VERIFY_EMAIL_SUBJECT = env('VERIFY_EMAIL_SUBJECT', 'Verify your email');
 export const mailConfigured = Boolean(mail.host && mail.user && mail.password && mail.addressBase);
 
+/**
+ * Domain for the throwaway addresses the tests invent (unknown user, lockout, signup validation).
+ * Order: TEST_EMAIL_DOMAIN, then the domain of your own mailbox (MAIL_ADDRESS_BASE), then the reserved example.com.
+ * Tests that need a domain the application actually accepts skip when none of the first two is set.
+ */
+const mailDomain = mail.addressBase.includes('@') ? mail.addressBase.split('@')[1] : '';
+export const TEST_EMAIL_DOMAIN = env('TEST_EMAIL_DOMAIN') || mailDomain || 'example.com';
+export const emailDomainConfigured = Boolean(env('TEST_EMAIL_DOMAIN') || mailDomain);
+/** An address on a domain the application refuses as disposable (used by the "disposable domain" signup test). */
+export const DISPOSABLE_EMAIL = env('DISPOSABLE_EMAIL', 'qa.test@example.com');
+
 /** Optional pre-verified QA customer (with address and onboarding done), used when no mailbox is set. */
 export const TEST_EMAIL = env('TEST_EMAIL');
 export const TEST_PASSWORD = env('TEST_PASSWORD');

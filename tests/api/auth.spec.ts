@@ -5,14 +5,15 @@
  * Nothing here creates an account or locks a real one: lockout uses a throwaway email.
  */
 import { test, expect } from '@playwright/test';
-import { IN_ZONE, TEST_EMAIL } from '../helpers/env';
+import { DISPOSABLE_EMAIL, IN_ZONE, TEST_EMAIL, emailDomainConfigured } from '../helpers/env';
+import { testEmail } from '../helpers/testData';
 import { publicApi } from '../helpers/apiClient';
 
 const login = async (email: string, password: string) => {
   const res = await (await publicApi()).post('auth/login', { data: { email, password } });
   return { status: res.status(), body: await res.json() };
 };
-const someEmail = TEST_EMAIL || 'qa.someone@gmail.com';
+const someEmail = TEST_EMAIL || testEmail('someone');
 
 test.describe('login', () => {
   test('rejects a wrong password with 401 and a generic message', { tag: '@smoke' }, async () => {
@@ -22,14 +23,14 @@ test.describe('login', () => {
   });
 
   test('gives an unknown email the same message as a wrong password (no account enumeration)', { tag: '@smoke' }, async () => {
-    const r = await login(`qa.nobody.${Date.now()}@gmail.com`, 'Wrong1234x');
+    const r = await login(testEmail('nobody'), 'Wrong1234x');
     expect(r.status).toBe(401);
     expect(r.body.message).toBe('Invalid email or password');
   });
 
   test('locks the account on the 6th wrong attempt', async () => {
     // A throwaway email is used on purpose: no real account can be locked by this test.
-    const email = `qa.lockout.${Date.now()}@gmail.com`;
+    const email = testEmail('lockout');
     const codes: number[] = [];
     for (let i = 0; i < 5; i++) codes.push((await login(email, 'Wrong1234x')).status);
     expect(codes).toEqual([401, 401, 401, 401, 401]);
@@ -39,7 +40,8 @@ test.describe('login', () => {
 
 test.describe('signup validation (every case is rejected, nothing is created)', () => {
   const post = async (data: object) => (await publicApi()).post('auth/signup', { data });
-  const ok = { email: 'qa.validation.pw@gmail.com', name: 'QA Test', ...IN_ZONE };
+  const ok = { email: testEmail('validation'), name: 'QA Test', ...IN_ZONE };
+  const NEEDS_DOMAIN = 'set TEST_EMAIL_DOMAIN (or MAIL_*) to a domain the application accepts, so the email is not what is rejected';
 
   test('rejects an empty body with 400', { tag: '@smoke' }, async () => {
     expect((await post({})).status()).toBe(400);
@@ -48,12 +50,14 @@ test.describe('signup validation (every case is rejected, nothing is created)', 
     expect((await post({ ...ok, email: 'not-an-email' })).status()).toBe(400);
   });
   test('rejects an empty name with 400', async () => {
+    test.skip(!emailDomainConfigured, NEEDS_DOMAIN);
     expect((await post({ ...ok, name: '' })).status()).toBe(400);
   });
   test('rejects a disposable email domain with 400', async () => {
-    expect((await post({ ...ok, email: 'qa.test@example.com' })).status()).toBe(400);
+    expect((await post({ ...ok, email: DISPOSABLE_EMAIL })).status()).toBe(400);
   });
   test('refuses an out-of-zone location with 403', async () => {
+    test.skip(!emailDomainConfigured, NEEDS_DOMAIN);
     const res = await post({ ...ok, lat: 51.5, lng: -0.12 });
     // The signup limiter (429) counts attempts per IP and can answer before the zone check; not a failure of this test.
     test.skip(res.status() === 429, 'signup rate limit reached, run again later');

@@ -5,6 +5,7 @@
  * not stop the test.
  */
 import { test, expect, type Page } from '@playwright/test';
+import { testEmail } from '../helpers/testData';
 import { IN_ZONE } from '../helpers/env';
 
 test.describe('signup form', () => {
@@ -36,7 +37,7 @@ test.describe('signup form', () => {
     await page.route('**/api/v1/auth/signup', async (r) => { calls++; await new Promise((res) => setTimeout(res, 800)); return r.fulfill(ok); });
     await open(page);
     await nameBox(page).fill('QA Tester');
-    await emailBox(page).fill('qa.nobody@example.com');
+    await emailBox(page).fill(testEmail('nobody'));
     await next(page).evaluate((el: HTMLButtonElement) => { el.click(); el.click(); });
     await expect(page.getByText(/verification email sent/i)).toBeVisible();
     expect(calls).toBe(1);
@@ -47,7 +48,7 @@ test.describe('signup form', () => {
     await page.route('**/api/v1/auth/signup', (r) => { sent = r.request().postDataJSON(); return r.fulfill(ok); });
     await open(page);
     await nameBox(page).fill('Siobhán Ní Bhriain');
-    await emailBox(page).fill('qa.nobody@example.com');
+    await emailBox(page).fill(testEmail('nobody'));
     await next(page).click();
     await expect(page.getByText(/verification email sent/i)).toBeVisible();
     expect(sent.name).toBe('Siobhán Ní Bhriain');
@@ -59,7 +60,7 @@ test.describe('signup form', () => {
     await page.route('**/api/v1/auth/signup', (r) => r.fulfill(ok));
     await open(page);
     await nameBox(page).fill('<img src=x onerror=alert(1)>');
-    await emailBox(page).fill('qa.nobody@example.com');
+    await emailBox(page).fill(testEmail('nobody'));
     await next(page).click();
     await page.waitForTimeout(1500);
     expect(dialogs).toBe(0);

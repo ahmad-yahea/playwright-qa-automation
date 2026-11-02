@@ -14,7 +14,7 @@
 1. **Start every file with a comment block**: `FEATURE (kind): what it covers. Why: what goes wrong for a customer if this breaks.`
 2. **Name tests by behaviour**: `rejects quantity 0 with 400`, not a ticket number or `test1`.
 3. **One idea per test.** If the title needs "and" twice, split it.
-4. **No hard-coded ids, hosts or credentials.** Use `env.ts`, `pickProduct()` and the fresh-data helpers.
+4. **No hard-coded ids, hosts, email addresses or credentials.** Use `env.ts`, `pickProduct()` and the fresh-data helpers (`testEmail()`, `freshEmail()`).
 5. **Prefer behaviour over wording**: status codes, URLs and visibility before exact text. Where wording matters (a safe error message), match it loosely with a regex.
 6. **Clean up after yourself** only when the test creates data it did not mean to (for example an address that was wrongly accepted).
 7. **Skip with a reason, never fail, when a prerequisite is missing** (`sessionOrSkip()`, `test.skip(!o.ok, reason)`).

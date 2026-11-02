@@ -92,6 +92,7 @@ In CI the same names come from repository **secrets** (`MAIL_*`, `TEST_*`) and *
 | `BASE_URL`, `API_URL` | The site and API under test (required) |
 | `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_ADDRESS_BASE` | IMAP mailbox for verification emails; enables fresh-account runs |
 | `VERIFY_EMAIL_SUBJECT` | Subject of the verification email |
+| `TEST_EMAIL_DOMAIN`, `DISPOSABLE_EMAIL` | Domain for the throwaway addresses the tests invent (defaults to your mailbox domain, then `example.com`), and an address on a domain the app refuses as disposable |
 | `TEST_EMAIL`, `TEST_PASSWORD` | Optional pre-verified customer when no mailbox is set |
 | `ZONE_IN_ID`, `ZONE_IN_NAME`, `ZONE_IN_LAT/LNG`, `ZONE_OUT_LAT/LNG` | Delivery-zone fixtures (a zone id, a point inside and a point outside) |
 | `SAMPLE_ADDRESS_LINE`, `SAMPLE_CITY`, `SAMPLE_COUNTRY`, `SAMPLE_POSTAL_CODE` | Sample address for address tests |
@@ -124,7 +125,7 @@ open `index.html`) and writes pass/fail counts to the job summary. In CI there i
 is reported as "flaky") and `test.only` is forbidden.
 
 **Secrets to add** (repo Settings -> Secrets and variables -> Actions): `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`,
-`MAIL_PASSWORD`, `MAIL_ADDRESS_BASE`; optional `TEST_EMAIL`, `TEST_PASSWORD`. Repo **variables**: `BASE_URL`, `API_URL` (required; without them the workflow only prints a notice) plus the optional `ZONE_*` and `VERIFY_EMAIL_SUBJECT` values.
+`MAIL_PASSWORD`, `MAIL_ADDRESS_BASE`; optional `TEST_EMAIL`, `TEST_PASSWORD`. Repo **variables**: `BASE_URL`, `API_URL` (required; without them the workflow only prints a notice) plus the optional `ZONE_*`, `TEST_EMAIL_DOMAIN`, `DISPOSABLE_EMAIL` and `VERIFY_EMAIL_SUBJECT` values.
 Without the mailbox secrets the pipeline still runs, but logged-in tests and the journey's signup steps are skipped.
 
 ## Add a test
